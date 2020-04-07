@@ -164,6 +164,11 @@ public class SlidingUpPanelLayout extends ViewGroup {
     private View mMainView;
 
     /**
+     * The footer view
+     */
+    private View mStickyFooter;
+
+    /**
      * Current state of the slideable view.
      */
     public enum PanelState {
@@ -736,12 +741,13 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
         final int childCount = getChildCount();
 
-        if (childCount != 2) {
-            throw new IllegalStateException("Sliding up panel layout must have exactly 2 children!");
+        if (childCount > 3 || childCount < 2) {
+            throw new IllegalStateException("Sliding up panel layout must have at least 2 children and maximum 3!");
         }
 
         mMainView = getChildAt(0);
         mSlideableView = getChildAt(1);
+        mStickyFooter = getChildAt(2);
         if (mDragView == null) {
             setDragView(mSlideableView);
         }
@@ -755,6 +761,8 @@ public class SlidingUpPanelLayout extends ViewGroup {
         int layoutWidth = widthSize - getPaddingLeft() - getPaddingRight();
 
         // First pass. Measure based on child LayoutParams width/height.
+        if (mStickyFooter != null)
+            measureChild(mStickyFooter, widthMeasureSpec, heightMeasureSpec);
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -775,7 +783,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
             } else if (child == mSlideableView) {
                 // The slideable view should be aware of its top margin.
                 // See https://github.com/umano/AndroidSlidingUpPanel/issues/412.
-                height -= lp.topMargin;
+                height -= lp.topMargin + getFooterHeight();
             }
 
             int childWidthSpec;
@@ -810,12 +818,15 @@ public class SlidingUpPanelLayout extends ViewGroup {
         setMeasuredDimension(widthSize, heightSize);
     }
 
+    private int getFooterHeight()
+    {
+        return mStickyFooter == null ? 0 : mStickyFooter.getMeasuredHeight();
+    }
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         final int paddingLeft = getPaddingLeft();
         final int paddingTop = getPaddingTop();
-
-        final int childCount = getChildCount();
 
         if (mFirstLayout) {
             switch (mSlideState) {
@@ -835,7 +846,9 @@ public class SlidingUpPanelLayout extends ViewGroup {
             }
         }
 
-        for (int i = 0; i < childCount; i++) {
+        if (mStickyFooter != null)
+            mStickyFooter.layout(l, b - mStickyFooter.getMeasuredHeight(), r, b);
+        for (int i = 0; i < 2; i++) {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
@@ -1063,9 +1076,9 @@ public class SlidingUpPanelLayout extends ViewGroup {
         int slidingViewHeight = mSlideableView != null ? mSlideableView.getMeasuredHeight() : 0;
         int slidePixelOffset = (int) (slideOffset * mSlideRange);
         // Compute the top of the panel if its collapsed
-        return mIsSlidingUp
+        return (mIsSlidingUp
                 ? getMeasuredHeight() - getPaddingBottom() - mPanelHeight - slidePixelOffset
-                : getPaddingTop() - slidingViewHeight + mPanelHeight + slidePixelOffset;
+                : getPaddingTop() - slidingViewHeight + mPanelHeight + slidePixelOffset) - getFooterHeight();
     }
 
     /*
@@ -1188,7 +1201,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         boolean result;
         final int save = canvas.save(Canvas.CLIP_SAVE_FLAG);
 
-        if (mSlideableView != null && mSlideableView != child) { // if main view
+        if (child == mMainView) { // if main view
             // Clip against the slider; no sense drawing what will immediately be covered,
             // Unless the panel is set to overlay content
             canvas.getClipBounds(mTmpRect);
