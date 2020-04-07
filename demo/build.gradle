@@ -1,21 +1,21 @@
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 29
-  buildToolsVersion "29.0.2"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
 
-  lintOptions {
-    abortOnError false
-  }
+    lintOptions {
+        abortOnError false
+    }
 
-  defaultConfig {
-    minSdkVersion 14
-    targetSdkVersion 29
-  }
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 29
+    }
 }
 
 dependencies {
-  compile 'com.android.support:support-v4:26.0.2'
-  compile 'com.android.support:appcompat-v7:26.0.2'
-  compile project(':library')
+    compile 'androidx.legacy:legacy-support-v4:1.0.0'
+    compile 'androidx.appcompat:appcompat:1.0.0'
+    compile project(':library')
 }
