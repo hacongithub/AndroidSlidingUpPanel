@@ -29,13 +29,13 @@ dependencies {
     repositories {
         mavenCentral()
     }
-    compile 'com.sothree.slidinguppanel:library:3.4.0'
+    compile 'de.hafas.slidinguppanel:library:3.4.0'
 }
 ```
 
 ### Usage
 
-* Include `com.sothree.slidinguppanel.SlidingUpPanelLayout` as the root element in your activity layout.
+* Include `de.hafas.slidinguppanel.SlidingUpPanelLayout` as the root element in your activity layout.
 * The layout must have `gravity` set to either `top` or `bottom`.
 * Make sure that it has two children. The first child is your main layout. The second child is your layout for the sliding up panel.
 * The main layout should have the width and the height set to `match_parent`.
@@ -45,14 +45,14 @@ dependencies {
 For more information, please refer to the sample code.
 
 ```xml
-<com.sothree.slidinguppanel.SlidingUpPanelLayout
-    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+<de.hafas.slidinguppanel.SlidingUpPanelLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    sothree:umanoPanelHeight="68dp"
-    sothree:umanoShadowHeight="4dp">
+    app:hafasPanelHeight="68dp"
+    app:hafasShadowHeight="4dp">
 
     <TextView
         android:layout_width="match_parent"
@@ -67,7 +67,7 @@ For more information, please refer to the sample code.
         android:gravity="center|top"
         android:text="The Awesome Sliding Up Panel"
         android:textSize="16sp" />
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+</de.hafas.slidinguppanel.SlidingUpPanelLayout>
 ```
 For smooth interaction with the ActionBar, make sure that `windowActionBarOverlay` is set to `true` in your styles:
 ```xml
