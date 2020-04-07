@@ -1,4 +1,4 @@
-package com.sothree.slidinguppanel;
+package de.hafas.slidinguppanel;
 
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;

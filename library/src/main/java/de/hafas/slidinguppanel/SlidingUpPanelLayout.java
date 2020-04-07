@@ -1,4 +1,4 @@
-package com.sothree.slidinguppanel;
+package de.hafas.slidinguppanel;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -22,7 +22,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
-import com.sothree.slidinguppanel.library.R;
+import de.hafas.slidinguppanel.library.R;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

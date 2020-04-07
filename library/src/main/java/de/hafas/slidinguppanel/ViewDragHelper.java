@@ -15,7 +15,7 @@
  */
 
 
-package com.sothree.slidinguppanel;
+package de.hafas.slidinguppanel;
 
 import android.content.Context;
 import androidx.core.view.MotionEventCompat;

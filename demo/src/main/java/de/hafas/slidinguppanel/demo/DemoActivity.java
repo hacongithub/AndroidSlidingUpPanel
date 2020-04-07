@@ -1,4 +1,4 @@
-package com.sothree.slidinguppanel.demo;
+package de.hafas.slidinguppanel.demo;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -19,9 +19,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
+import de.hafas.slidinguppanel.SlidingUpPanelLayout;
+import de.hafas.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
+import de.hafas.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
 import java.util.Arrays;
 import java.util.List;

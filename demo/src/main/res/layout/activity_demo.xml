@@ -1,4 +1,4 @@
-<com.sothree.slidinguppanel.SlidingUpPanelLayout
+<de.hafas.slidinguppanel.SlidingUpPanelLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
@@ -103,4 +103,4 @@
         android:background="#FF0000"
         android:layout_width="match_parent"
         android:layout_height="100dp"/>
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+</de.hafas.slidinguppanel.SlidingUpPanelLayout>
