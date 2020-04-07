@@ -2,23 +2,23 @@
 <resources>
 
     <declare-styleable name="SlidingUpPanelLayout">
-        <attr name="umanoPanelHeight" format="dimension" />
-        <attr name="umanoShadowHeight" format="dimension" />
-        <attr name="umanoParallaxOffset" format="dimension" />
-        <attr name="umanoFadeColor" format="color" />
-        <attr name="umanoFlingVelocity" format="integer" />
-        <attr name="umanoDragView" format="reference" />
-        <attr name="umanoScrollableView" format="reference" />
-        <attr name="umanoOverlay" format="boolean"/>
-        <attr name="umanoClipPanel" format="boolean"/>
-        <attr name="umanoAnchorPoint" format="float" />
-        <attr name="umanoInitialState" format="enum">
+        <attr name="hafasPanelHeight" format="dimension" />
+        <attr name="hafasShadowHeight" format="dimension" />
+        <attr name="hafasParallaxOffset" format="dimension" />
+        <attr name="hafasFadeColor" format="color" />
+        <attr name="hafasFlingVelocity" format="integer" />
+        <attr name="hafasDragView" format="reference" />
+        <attr name="hafasScrollableView" format="reference" />
+        <attr name="hafasOverlay" format="boolean"/>
+        <attr name="hafasClipPanel" format="boolean"/>
+        <attr name="hafasAnchorPoint" format="float" />
+        <attr name="hafasInitialState" format="enum">
             <enum name="expanded" value="0" />
             <enum name="collapsed" value="1" />
             <enum name="anchored" value="2" />
             <enum name="hidden" value="3" />
         </attr>
-        <attr name="umanoScrollInterpolator" format="reference" />
+        <attr name="hafasScrollInterpolator" format="reference" />
     </declare-styleable>
 
 </resources>

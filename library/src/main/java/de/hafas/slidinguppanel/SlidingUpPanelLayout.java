@@ -298,24 +298,24 @@ public class SlidingUpPanelLayout extends ViewGroup {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlidingUpPanelLayout);
 
             if (ta != null) {
-                mPanelHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_umanoPanelHeight, -1);
-                mShadowHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_umanoShadowHeight, -1);
-                mParallaxOffset = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_umanoParallaxOffset, -1);
+                mPanelHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasPanelHeight, -1);
+                mShadowHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasShadowHeight, -1);
+                mParallaxOffset = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasParallaxOffset, -1);
 
-                mMinFlingVelocity = ta.getInt(R.styleable.SlidingUpPanelLayout_umanoFlingVelocity, DEFAULT_MIN_FLING_VELOCITY);
-                mCoveredFadeColor = ta.getColor(R.styleable.SlidingUpPanelLayout_umanoFadeColor, DEFAULT_FADE_COLOR);
+                mMinFlingVelocity = ta.getInt(R.styleable.SlidingUpPanelLayout_hafasFlingVelocity, DEFAULT_MIN_FLING_VELOCITY);
+                mCoveredFadeColor = ta.getColor(R.styleable.SlidingUpPanelLayout_hafasFadeColor, DEFAULT_FADE_COLOR);
 
-                mDragViewResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_umanoDragView, -1);
-                mScrollableViewResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_umanoScrollableView, -1);
+                mDragViewResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_hafasDragView, -1);
+                mScrollableViewResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_hafasScrollableView, -1);
 
-                mOverlayContent = ta.getBoolean(R.styleable.SlidingUpPanelLayout_umanoOverlay, DEFAULT_OVERLAY_FLAG);
-                mClipPanel = ta.getBoolean(R.styleable.SlidingUpPanelLayout_umanoClipPanel, DEFAULT_CLIP_PANEL_FLAG);
+                mOverlayContent = ta.getBoolean(R.styleable.SlidingUpPanelLayout_hafasOverlay, DEFAULT_OVERLAY_FLAG);
+                mClipPanel = ta.getBoolean(R.styleable.SlidingUpPanelLayout_hafasClipPanel, DEFAULT_CLIP_PANEL_FLAG);
 
-                mAnchorPoint = ta.getFloat(R.styleable.SlidingUpPanelLayout_umanoAnchorPoint, DEFAULT_ANCHOR_POINT);
+                mAnchorPoint = ta.getFloat(R.styleable.SlidingUpPanelLayout_hafasAnchorPoint, DEFAULT_ANCHOR_POINT);
 
-                mSlideState = PanelState.values()[ta.getInt(R.styleable.SlidingUpPanelLayout_umanoInitialState, DEFAULT_SLIDE_STATE.ordinal())];
+                mSlideState = PanelState.values()[ta.getInt(R.styleable.SlidingUpPanelLayout_hafasInitialState, DEFAULT_SLIDE_STATE.ordinal())];
 
-                int interpolatorResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_umanoScrollInterpolator, -1);
+                int interpolatorResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_hafasScrollInterpolator, -1);
                 if (interpolatorResId != -1) {
                     scrollerInterpolator = AnimationUtils.loadInterpolator(context, interpolatorResId);
                 }
