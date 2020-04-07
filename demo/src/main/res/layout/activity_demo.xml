@@ -6,12 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    sothree:umanoPanelHeight="68dp"
-    sothree:umanoShadowHeight="4dp"
-    sothree:umanoParallaxOffset="100dp"
-    sothree:umanoDragView="@+id/dragView"
-    sothree:umanoOverlay="true"
-    sothree:umanoScrollableView="@+id/list">
+    sothree:hafasPanelHeight="68dp"
+    sothree:hafasShadowHeight="4dp"
+    sothree:hafasParallaxOffset="100dp"
+    sothree:hafasDragView="@+id/dragView"
+    sothree:hafasOverlay="true"
+    sothree:hafasScrollableView="@+id/list">
 
     <!-- MAIN CONTENT -->
     <FrameLayout
