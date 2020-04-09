@@ -29,7 +29,7 @@ dependencies {
     repositories {
         mavenCentral()
     }
-    implementation 'de.hafas.slidinguppanel:library:3.4.0'
+    implementation 'de.hafas.slidinguppanel:library:4.0.0'
 }
 ```
 
@@ -149,7 +149,7 @@ Tested on Android 2.2+
 If you have an awesome pull request, send it over!
 
 ### Changelog
-* SNAPSHOT
+* 4.0.0
   * Migrated the project to AndroidX
   * Changed the packagename to `de.hafas.` prefix to prevent collisions
  with the existing library.
