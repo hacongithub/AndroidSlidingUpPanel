@@ -788,7 +788,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
             } else if (child == mSlideableView) {
                 // The slideable view should be aware of its top margin.
                 // See https://github.com/umano/AndroidSlidingUpPanel/issues/412.
-                height -= lp.topMargin;
+                height -= (lp.topMargin + getFooterHeight());
             }
 
             int childWidthSpec;
@@ -817,10 +817,6 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
             if (child == mSlideableView) {
                 mSlideRange = mSlideableView.getMeasuredHeight() - mPanelHeight;
-            }
-            if (child == mStickyFooter) {
-                // adjust the slideable range, if we have a footer we have less space for sliding
-                mSlideRange -= child.getMeasuredHeight();
             }
         }
 
