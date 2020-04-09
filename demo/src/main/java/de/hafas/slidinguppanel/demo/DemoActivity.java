@@ -46,6 +46,14 @@ public class DemoActivity extends AppCompatActivity {
             }
         });
 
+        View footer = findViewById(R.id.footer);
+        footer.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(DemoActivity.this, "onFooterClick", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         List<String> your_array_list = Arrays.asList(
                 "This",
                 "Is",

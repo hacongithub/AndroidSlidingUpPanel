@@ -223,6 +223,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
     private View.OnClickListener mFadeOnClickListener;
 
     private final ViewDragHelper mDragHelper;
+    private final ViewDragHelper mFooterDragHelper;
 
     /**
      * Stores whether or not the pane was expanded the last time it was slideable.
@@ -281,6 +282,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         if (isInEditMode()) {
             mShadowDrawable = null;
             mDragHelper = null;
+            mFooterDragHelper = null;
             return;
         }
 
@@ -348,6 +350,9 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
         mDragHelper = ViewDragHelper.create(this, 0.5f, scrollerInterpolator, new DragHelperCallback());
         mDragHelper.setMinVelocity(mMinFlingVelocity * density);
+
+        mFooterDragHelper = ViewDragHelper.create(this, 0.5f, null, new FooterDragHelperCallback());
+        mFooterDragHelper.setMinVelocity(mMinFlingVelocity * density);
 
         mIsTouchEnabled = true;
     }
@@ -776,14 +781,14 @@ public class SlidingUpPanelLayout extends ViewGroup {
             int width = layoutWidth;
             if (child == mMainView) {
                 if (!mOverlayContent && mSlideState != PanelState.HIDDEN) {
-                    height -= mPanelHeight;
+                    height -= (mPanelHeight + getFooterHeight());
                 }
 
                 width -= lp.leftMargin + lp.rightMargin;
             } else if (child == mSlideableView) {
                 // The slideable view should be aware of its top margin.
                 // See https://github.com/umano/AndroidSlidingUpPanel/issues/412.
-                height -= lp.topMargin + getFooterHeight();
+                height -= lp.topMargin;
             }
 
             int childWidthSpec;
@@ -812,6 +817,10 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
             if (child == mSlideableView) {
                 mSlideRange = mSlideableView.getMeasuredHeight() - mPanelHeight;
+            }
+            if (child == mStickyFooter) {
+                // adjust the slideable range, if we have a footer we have less space for sliding
+                mSlideRange -= child.getMeasuredHeight();
             }
         }
 
@@ -846,9 +855,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
             }
         }
 
-        if (mStickyFooter != null)
-            mStickyFooter.layout(l, b - mStickyFooter.getMeasuredHeight(), r, b);
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < getChildCount(); i++) {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
@@ -862,6 +869,10 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
             if (child == mSlideableView) {
                 childTop = computePanelTopPosition(mSlideOffset);
+            }
+
+            if (child == mStickyFooter) {
+                childTop = computeFooterTopPosition(mSlideOffset);
             }
 
             if (!mIsSlidingUp) {
@@ -898,6 +909,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         // If the scrollable view is handling touch, never intercept
         if (mIsScrollableViewHandlingTouch || !isTouchEnabled()) {
             mDragHelper.abort();
+            mFooterDragHelper.abort();
             return false;
         }
 
@@ -973,6 +985,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
         if (!isEnabled() || !isTouchEnabled() || (mIsUnableToDrag && action != MotionEvent.ACTION_DOWN)) {
             mDragHelper.abort();
+            mFooterDragHelper.abort();
             return super.dispatchTouchEvent(ev);
         }
 
@@ -1075,10 +1088,25 @@ public class SlidingUpPanelLayout extends ViewGroup {
     private int computePanelTopPosition(float slideOffset) {
         int slidingViewHeight = mSlideableView != null ? mSlideableView.getMeasuredHeight() : 0;
         int slidePixelOffset = (int) (slideOffset * mSlideRange);
+        int footerHeight = getFooterHeight();
         // Compute the top of the panel if its collapsed
+        int panelTop = (mIsSlidingUp
+                        ? getMeasuredHeight() - getPaddingBottom() - mPanelHeight - slidePixelOffset - (slideOffset >= 0 ? footerHeight : 0)
+                        : getPaddingTop() - slidingViewHeight + mPanelHeight + slidePixelOffset); // TODO: adjust the panelTopPosition when a footer is configured and mIsSlidingUp = false
+        // Don't return values higher than our height, otherwise there is a bug when adjusting
+        // the height of mMainView in onPanelDragged()
+        return Math.min(panelTop, getHeight());
+    }
+
+    /*
+     * Computes the top position of the footer based on the slide offset.
+     */
+    private int computeFooterTopPosition(float slideOffset) {
+        int footerViewHeight = getFooterHeight();
+        // slideOffset is negative, when mSlideableView is below its' collapsed state
         return (mIsSlidingUp
-                ? getMeasuredHeight() - getPaddingBottom() - mPanelHeight - slidePixelOffset
-                : getPaddingTop() - slidingViewHeight + mPanelHeight + slidePixelOffset) - getFooterHeight();
+                ? getMeasuredHeight() - getPaddingBottom() - (slideOffset < 0 ? -mPanelHeight : footerViewHeight)
+                : 0); // TODO: return the right footerTopPosition when mIsSlidingUp = false
     }
 
     /*
@@ -1115,6 +1143,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         if(mDragHelper.getViewDragState() == ViewDragHelper.STATE_SETTLING){
             Log.d(TAG, "View is settling. Aborting animation.");
             mDragHelper.abort();
+            mFooterDragHelper.abort();
         }
 
         if (state == null || state == PanelState.DRAGGING) {
@@ -1181,7 +1210,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         // If the slide offset is negative, and overlay is not on, we need to increase the
         // height of the main content
         LayoutParams lp = (LayoutParams) mMainView.getLayoutParams();
-        int defaultHeight = getHeight() - getPaddingBottom() - getPaddingTop() - mPanelHeight;
+        int defaultHeight = getHeight() - getPaddingBottom() - getPaddingTop() - mPanelHeight - getFooterHeight();
 
         if (mSlideOffset <= 0 && !mOverlayContent) {
             // expand the main view
@@ -1247,8 +1276,14 @@ public class SlidingUpPanelLayout extends ViewGroup {
         }
 
         int panelTop = computePanelTopPosition(slideOffset);
+        // We need the same animation duration for the mSlideableView and the footer in order to look good.
+        int animationDuration = mDragHelper.computeSettleDuration(mSlideableView, mSlideableView.getLeft(), panelTop);
 
-        if (mDragHelper.smoothSlideViewTo(mSlideableView, mSlideableView.getLeft(), panelTop)) {
+        if (mDragHelper.smoothSlideViewTo(mSlideableView, mSlideableView.getLeft(), panelTop, animationDuration)) {
+            if (mStickyFooter != null) {
+                int footerTop = computeFooterTopPosition(slideOffset);
+                mFooterDragHelper.smoothSlideViewTo(mStickyFooter, mStickyFooter.getLeft(), footerTop, animationDuration);
+            }
             setAllChildrenVisible();
             ViewCompat.postInvalidateOnAnimation(this);
             return true;
@@ -1258,13 +1293,21 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
     @Override
     public void computeScroll() {
-        if (mDragHelper != null && mDragHelper.continueSettling(true)) {
-            if (!isEnabled()) {
-                mDragHelper.abort();
-                return;
-            }
 
-            ViewCompat.postInvalidateOnAnimation(this);
+        if (isEnabled()) {
+            boolean panelAnimationHappening = false;
+            boolean footerAnimationHappening = false;
+            if (mDragHelper != null)
+                panelAnimationHappening = mDragHelper.continueSettling(true);
+            if (mFooterDragHelper != null)
+                footerAnimationHappening = mFooterDragHelper.continueSettling(true);
+            if (panelAnimationHappening || footerAnimationHappening)
+                ViewCompat.postInvalidateOnAnimation(this);
+        } else {
+            if (mDragHelper != null)
+                mDragHelper.abort();
+            if (mFooterDragHelper != null)
+                mFooterDragHelper.abort();
         }
     }
 
@@ -1453,6 +1496,26 @@ public class SlidingUpPanelLayout extends ViewGroup {
             } else {
                 return Math.min(Math.max(top, collapsedTop), expandedTop);
             }
+        }
+    }
+
+    /**
+     * The {@link ViewDragHelper.Callback} implementation for the footer view. This view is nut draggable,
+     * but the {@link ViewDragHelper} is used to animate the view via scrolling.
+     */
+    private class FooterDragHelperCallback extends ViewDragHelper.Callback {
+
+        @Override
+        public boolean tryCaptureView(View child, int pointerId)
+        {
+            // The footer view is not draggable by the user
+            return false;
+        }
+
+        @Override
+        public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy)
+        {
+            invalidate();
         }
     }
 

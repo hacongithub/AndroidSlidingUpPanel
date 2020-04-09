@@ -95,6 +95,7 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/footer"
         android:text="Look at me, I am the Footer now"
         android:gravity="center"
         android:textColor="#FFFFFF"

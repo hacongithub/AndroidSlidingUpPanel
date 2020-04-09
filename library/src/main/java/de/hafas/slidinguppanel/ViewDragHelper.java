@@ -101,6 +101,11 @@ public class ViewDragHelper {
      */
     public static final int DIRECTION_ALL = DIRECTION_HORIZONTAL | DIRECTION_VERTICAL;
 
+    /**
+     * Flag indicating to automatically compute the animation duration
+     */
+    public static final int DURATION_AUTO =-1;
+
     private static final int EDGE_SIZE = 20; // dp
 
     private static final int BASE_SETTLE_DURATION = 256; // ms
@@ -567,10 +572,25 @@ public class ViewDragHelper {
      * @return true if animation should continue through {@link #continueSettling(boolean)} calls
      */
     public boolean smoothSlideViewTo(View child, int finalLeft, int finalTop) {
+        return smoothSlideViewTo(child, finalLeft, finalTop, DURATION_AUTO);
+    }
+
+
+    /**
+     * @see ViewDragHelper#smoothSlideViewTo(View, int, int)
+     *
+     * @param child Child view to capture and animate
+     * @param finalLeft Final left position of child
+     * @param finalTop Final top position of child
+     * @param duration The desired animation duration for the scroll.
+     *                 {@link ViewDragHelper#DURATION_AUTO} for automatic computation.
+     * @return true if animation should continue through {@link #continueSettling(boolean)} calls
+     */
+    public boolean smoothSlideViewTo(View child, int finalLeft, int finalTop, int duration) {
         mCapturedView = child;
         mActivePointerId = INVALID_POINTER;
 
-        return forceSettleCapturedViewAt(finalLeft, finalTop, 0, 0);
+        return forceSettleCapturedViewAt(finalLeft, finalTop, 0, 0, duration);
     }
 
     /**
@@ -592,7 +612,8 @@ public class ViewDragHelper {
 
         return forceSettleCapturedViewAt(finalLeft, finalTop,
                 (int) VelocityTrackerCompat.getXVelocity(mVelocityTracker, mActivePointerId),
-                (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId));
+                (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId),
+                DURATION_AUTO);
     }
 
     /**
@@ -602,9 +623,11 @@ public class ViewDragHelper {
      * @param finalTop Target top position for the captured view
      * @param xvel Horizontal velocity
      * @param yvel Vertical velocity
+     * @param duration The desired animation duration for the scroll.
+     *                 {@link ViewDragHelper#DURATION_AUTO} for automatic computation.
      * @return true if animation should continue through {@link #continueSettling(boolean)} calls
      */
-    private boolean forceSettleCapturedViewAt(int finalLeft, int finalTop, int xvel, int yvel) {
+    private boolean forceSettleCapturedViewAt(int finalLeft, int finalTop, int xvel, int yvel, int duration) {
         final int startLeft = mCapturedView.getLeft();
         final int startTop = mCapturedView.getTop();
         final int dx = finalLeft - startLeft;
@@ -617,11 +640,31 @@ public class ViewDragHelper {
             return false;
         }
 
-        final int duration = computeSettleDuration(mCapturedView, dx, dy, xvel, yvel);
+        if (duration < 0)
+            duration = computeSettleDuration(mCapturedView, dx, dy, xvel, yvel);
         mScroller.startScroll(startLeft, startTop, dx, dy, duration);
 
         setDragState(STATE_SETTLING);
         return true;
+    }
+
+    /**
+     * Publicly available API to compute the settleDuration based on the child and its' final position.
+     *
+     * @param child Child view to capture and animate
+     * @param finalLeft Final left position of child
+     * @param finalTop Final top position of child
+     * @return The animation duration for this child and its' final position.
+     */
+    public int computeSettleDuration(View child, int finalLeft, int finalTop)
+    {
+        mCapturedView = child;
+        mActivePointerId = INVALID_POINTER;
+        final int startLeft = mCapturedView.getLeft();
+        final int startTop = mCapturedView.getTop();
+        final int dx = finalLeft - startLeft;
+        final int dy = finalTop - startTop;
+        return computeSettleDuration(mCapturedView, dx, dy, 0, 0);
     }
 
     private int computeSettleDuration(View child, int dx, int dy, int xvel, int yvel) {
