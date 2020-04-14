@@ -1132,8 +1132,10 @@ public class ViewDragHelper {
      * as needed before returning. The parent view's onTouchEvent implementation should call this.
      *
      * @param ev The touch event received by the parent view
+     * @return <code>true</code> if the passed event can be considered to be consumed and should not
+     * bubble up the view hierarchy further
      */
-    public void processTouchEvent(MotionEvent ev) {
+    public boolean processTouchEvent(MotionEvent ev) {
         final int action = MotionEventCompat.getActionMasked(ev);
         final int actionIndex = MotionEventCompat.getActionIndex(ev);
 
@@ -1160,13 +1162,13 @@ public class ViewDragHelper {
                 // Since the parent is already directly processing this touch event,
                 // there is no reason to delay for a slop before dragging.
                 // Start immediately if possible.
-                tryCaptureViewForDrag(toCapture, pointerId);
+                boolean captured = tryCaptureViewForDrag(toCapture, pointerId);
 
                 final int edgesTouched = mInitialEdgesTouched[pointerId];
                 if ((edgesTouched & mTrackingEdges) != 0) {
                     mCallback.onEdgeTouched(edgesTouched & mTrackingEdges, pointerId);
                 }
-                break;
+                return captured;
             }
 
             case MotionEventCompat.ACTION_POINTER_DOWN: {
@@ -1181,20 +1183,22 @@ public class ViewDragHelper {
                     // If we're idle we can do anything! Treat it like a normal down event.
 
                     final View toCapture = findTopChildUnder((int) x, (int) y);
-                    tryCaptureViewForDrag(toCapture, pointerId);
+                    boolean captured = tryCaptureViewForDrag(toCapture, pointerId);
 
                     final int edgesTouched = mInitialEdgesTouched[pointerId];
                     if ((edgesTouched & mTrackingEdges) != 0) {
                         mCallback.onEdgeTouched(edgesTouched & mTrackingEdges, pointerId);
                     }
+                    return captured;
                 } else if (isCapturedViewUnder((int) x, (int) y)) {
                     // We're still tracking a captured view. If the same view is under this
                     // point, we'll swap to controlling it with this pointer instead.
                     // (This will still work if we're "catching" a settling view.)
 
-                    tryCaptureViewForDrag(mCapturedView, pointerId);
+                    return tryCaptureViewForDrag(mCapturedView, pointerId);
+                } else {
+                    return false;
                 }
-                break;
             }
 
             case MotionEvent.ACTION_MOVE: {
@@ -1208,8 +1212,10 @@ public class ViewDragHelper {
                     dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy);
 
                     saveLastMotion(ev);
+                    return true;
                 } else {
                     // Check to see if any pointer is now over a draggable view.
+                    boolean consumed = false;
                     final int pointerCount = MotionEventCompat.getPointerCount(ev);
                     for (int i = 0; i < pointerCount; i++) {
                         final int pointerId = MotionEventCompat.getPointerId(ev, i)
@@ -1222,18 +1228,20 @@ public class ViewDragHelper {
                         reportNewEdgeDrags(dx, dy, pointerId);
                         if (mDragState == STATE_DRAGGING) {
                             // Callback might have started an edge drag.
+                            consumed = true;
                             break;
                         }
 
                         final View toCapture = findTopChildUnder((int) mInitialMotionX[pointerId], (int) mInitialMotionY[pointerId]);
                         if (checkTouchSlop(toCapture, dx, dy) &&
                                 tryCaptureViewForDrag(toCapture, pointerId)) {
+                            consumed = true;
                             break;
                         }
                     }
                     saveLastMotion(ev);
+                    return consumed;
                 }
-                break;
             }
 
             case MotionEventCompat.ACTION_POINTER_UP: {
@@ -1262,17 +1270,21 @@ public class ViewDragHelper {
                         // We didn't find another pointer still touching the view, release it.
                         releaseViewForPointerUp();
                     }
+                    return true;
                 }
                 clearMotionHistory(pointerId);
-                break;
+                return false;
             }
 
             case MotionEvent.ACTION_UP: {
                 if (mDragState == STATE_DRAGGING) {
                     releaseViewForPointerUp();
+                    cancel();
+                    return true;
+                } else {
+                    cancel();
+                    return false;
                 }
-                cancel();
-                break;
             }
 
             case MotionEvent.ACTION_CANCEL: {
@@ -1280,8 +1292,10 @@ public class ViewDragHelper {
                     dispatchViewReleased(0, 0);
                 }
                 cancel();
-                break;
+                return false;
             }
+            default:
+                return false;
         }
     }
 
