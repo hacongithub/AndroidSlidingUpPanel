@@ -94,12 +94,12 @@ public class DemoActivity extends AppCompatActivity {
         mLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         mLayout.addPanelSlideListener(new PanelSlideListener() {
             @Override
-            public void onPanelSlide(View panel, float slideOffset) {
+            public void onPanelSlide(@NonNull View panel, float slideOffset) {
                 Log.i(TAG, "onPanelSlide, offset " + slideOffset);
             }
 
             @Override
-            public void onPanelStateChanged(View panel, PanelState previousState, PanelState newState) {
+            public void onPanelStateChanged(@NonNull View panel, @NonNull PanelState previousState, @NonNull PanelState newState) {
                 Log.i(TAG, "onPanelStateChanged " + newState);
             }
         });

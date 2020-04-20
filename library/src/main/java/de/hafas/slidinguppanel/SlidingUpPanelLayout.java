@@ -10,6 +10,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
@@ -179,6 +182,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         DRAGGING
     }
 
+    @NonNull
     private PanelState mSlideState = DEFAULT_SLIDE_STATE;
 
     /**
@@ -244,14 +248,16 @@ public class SlidingUpPanelLayout extends ViewGroup {
          * @param panel       The child view that was moved
          * @param slideOffset The new offset of this sliding pane within its range, from 0-1
          */
-        public void onPanelSlide(View panel, float slideOffset);
+        @MainThread
+        void onPanelSlide(@NonNull View panel, float slideOffset);
 
         /**
          * Called when a sliding panel state changes
          *
          * @param panel The child view that was slid to an collapsed position
          */
-        public void onPanelStateChanged(View panel, PanelState previousState, PanelState newState);
+        @MainThread
+        void onPanelStateChanged(@NonNull View panel, @NonNull PanelState previousState, @NonNull PanelState newState);
     }
 
     /**
@@ -260,11 +266,11 @@ public class SlidingUpPanelLayout extends ViewGroup {
      */
     public static class SimplePanelSlideListener implements PanelSlideListener {
         @Override
-        public void onPanelSlide(View panel, float slideOffset) {
+        public void onPanelSlide(@NonNull View panel, float slideOffset) {
         }
 
         @Override
-        public void onPanelStateChanged(View panel, PanelState previousState, PanelState newState) {
+        public void onPanelStateChanged(@NonNull View panel, @NonNull PanelState previousState, @NonNull PanelState newState) {
         }
     }
 
@@ -1123,6 +1129,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
      *
      * @return the current panel state
      */
+    @NonNull
     public PanelState getPanelState() {
         return mSlideState;
     }
@@ -1132,7 +1139,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
      *
      * @param state - new panel state
      */
-    public void setPanelState(PanelState state) {
+    public void setPanelState(@NonNull PanelState state) {
 
         // Abort any running animation, to allow state change
         if(mDragHelper.getViewDragState() == ViewDragHelper.STATE_SETTLING){
@@ -1141,7 +1148,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
             mFooterDragHelper.abort();
         }
 
-        if (state == null || state == PanelState.DRAGGING) {
+        if (state == PanelState.DRAGGING) {
             throw new IllegalArgumentException("Panel state cannot be null or DRAGGING.");
         }
         if (!isEnabled()
@@ -1174,7 +1181,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         }
     }
 
-    private void setPanelStateInternal(PanelState state) {
+    private void setPanelStateInternal(@NonNull PanelState state) {
         if (mSlideState == state) return;
         PanelState oldState = mSlideState;
         mSlideState = state;
@@ -1394,8 +1401,8 @@ public class SlidingUpPanelLayout extends ViewGroup {
     public void onRestoreInstanceState(Parcelable state) {
         if (state instanceof Bundle) {
             Bundle bundle = (Bundle) state;
-            mSlideState = (PanelState) bundle.getSerializable(SLIDING_STATE);
-            mSlideState = mSlideState == null ? DEFAULT_SLIDE_STATE : mSlideState;
+            PanelState deserializedState = (PanelState) bundle.getSerializable(SLIDING_STATE);
+            mSlideState = deserializedState == null ? DEFAULT_SLIDE_STATE : deserializedState;
             state = bundle.getParcelable("superState");
         }
         super.onRestoreInstanceState(state);
