@@ -2,7 +2,11 @@
 <resources>
 
     <declare-styleable name="SlidingUpPanelLayout">
-        <attr name="hafasPanelHeight" format="dimension" />
+        <attr name="hafasPanelHeight" format="dimension" >
+            <!-- -1: Not defined -> default value of 68dp -->
+            <!-- Value to automatically adjust the panel height to the specified header view. -->
+            <enum name="auto" value="-2" />
+        </attr>
         <attr name="hafasShadowHeight" format="dimension" />
         <attr name="hafasParallaxOffset" format="dimension" />
         <attr name="hafasFadeColor" format="color" />
@@ -20,7 +24,6 @@
         </attr>
         <attr name="hafasScrollInterpolator" format="reference" />
         <attr name="hafasHeaderView" format="reference" />
-        <attr name="hafasPanelAutoHeight" format="boolean" />
     </declare-styleable>
 
 </resources>

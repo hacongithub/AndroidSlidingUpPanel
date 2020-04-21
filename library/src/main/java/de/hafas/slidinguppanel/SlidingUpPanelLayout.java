@@ -102,7 +102,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
     /**
      * Value for when the panel should adjust its size depending on a header view.
      */
-    public static final int PANEL_HEIGHT_AUTO = -1;
+    public static final int PANEL_HEIGHT_AUTO = -2;
 
     /**
      * The paint used to dim the main layout when sliding
@@ -329,7 +329,11 @@ public class SlidingUpPanelLayout extends ViewGroup {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlidingUpPanelLayout);
 
             if (ta != null) {
-                mPanelHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasPanelHeight, -1);
+                // try obtaining the value as an integer first. Since -2 is not a valid dimension
+                // an exception is thrown when we try that first
+                mPanelHeight = ta.getInt(R.styleable.SlidingUpPanelLayout_hafasPanelHeight, -1);
+                if (mPanelHeight != PANEL_HEIGHT_AUTO)
+                    mPanelHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasPanelHeight, -1);
                 mShadowHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasShadowHeight, -1);
                 mParallaxOffset = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasParallaxOffset, -1);
 
@@ -352,8 +356,8 @@ public class SlidingUpPanelLayout extends ViewGroup {
                 }
 
                 mHeaderViewResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_hafasHeaderView, -1);
-                mPanelAutoHeightEnabled = ta.getBoolean(R.styleable.SlidingUpPanelLayout_hafasPanelAutoHeight, false);
-                if (mHeaderViewResId == -1)
+                mPanelAutoHeightEnabled = mPanelHeight == PANEL_HEIGHT_AUTO;
+                if (mHeaderViewResId == -1 && mPanelAutoHeightEnabled)
                     throw new IllegalStateException("hafasPanelAutoHeight can't be set without defining a headerView");
                 ta.recycle();
             }

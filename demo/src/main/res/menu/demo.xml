@@ -17,6 +17,6 @@
         android:id="@+id/action_auto_height"
         android:orderInCategory="300"
         sothree:showAsAction="never"
-        android:title="@string/action_auto_height_enable"/>
+        android:title="@string/action_auto_height_disable"/>
 
 </menu>

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    sothree:hafasPanelHeight="68dp"
+    sothree:hafasPanelHeight="auto"
     sothree:hafasShadowHeight="4dp"
     sothree:hafasParallaxOffset="100dp"
     sothree:hafasDragView="@+id/dragView"
