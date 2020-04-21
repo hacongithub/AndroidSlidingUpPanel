@@ -100,6 +100,11 @@ public class SlidingUpPanelLayout extends ViewGroup {
     private static final int DEFAULT_PARALLAX_OFFSET = 0;
 
     /**
+     * Value for when the panel should adjust its size depending on a header view.
+     */
+    public static final int PANEL_HEIGHT_AUTO = -1;
+
+    /**
      * The paint used to dim the main layout when sliding
      */
     private final Paint mCoveredFadePaint = new Paint();
@@ -182,6 +187,12 @@ public class SlidingUpPanelLayout extends ViewGroup {
     private int mHeaderViewResId = -1;
     @Nullable
     private View mHeaderView;
+
+    /**
+     * Weather or not the panel auto height feature is activated. If it is activated the panel height
+     * is automatically adjusted to the header view.
+     */
+    private boolean mPanelAutoHeightEnabled;
 
     /**
      * Current state of the slideable view.
@@ -341,6 +352,9 @@ public class SlidingUpPanelLayout extends ViewGroup {
                 }
 
                 mHeaderViewResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_hafasHeaderView, -1);
+                mPanelAutoHeightEnabled = ta.getBoolean(R.styleable.SlidingUpPanelLayout_hafasPanelAutoHeight, false);
+                if (mHeaderViewResId == -1)
+                    throw new IllegalStateException("hafasPanelAutoHeight can't be set without defining a headerView");
                 ta.recycle();
             }
         }
@@ -436,25 +450,64 @@ public class SlidingUpPanelLayout extends ViewGroup {
     }
 
     /**
-     * Set the collapsed panel height in pixels
+     * Defines a header view. This View must be a child of  the slideable view.<br>
+     * When a header View is set and the panel height is set to {@link SlidingUpPanelLayout#PANEL_HEIGHT_AUTO}
+     * the panel height will be adjusted whenever the header view changes its height.
      *
-     * @param val A height in pixels
+     * @param headerResId The id of the header view.
+     */
+    public void setHeaderView(@IdRes int headerResId) {
+        mHeaderViewResId = headerResId;
+        mHeaderView = findViewById(mHeaderViewResId);
+        if (mHeaderView == null)
+            throw new IllegalStateException("Header view not found!");
+        if (getPanelAutoHeightEnabled())
+            requestLayout();
+    }
+
+    /**
+     * Set the collapsed panel height in pixels. Any specific value will deactivate the panel auto-height
+     * feature when also a header view is defined.
+     *
+     * @param val A height in pixels or {@link SlidingUpPanelLayout#PANEL_HEIGHT_AUTO} if a header
+     *            view should define the height of the panel.
      */
     public void setPanelHeight(int val) {
-        if (getPanelHeight() == val) {
-            return;
-        }
 
-        mPanelHeight = val;
-        if (!mFirstLayout) {
+        if (val != PANEL_HEIGHT_AUTO) {
+            mPanelAutoHeightEnabled = false;
+            if (getPanelHeight() == val) {
+                return;
+            }
+            mPanelHeight = val;
+            if (!mFirstLayout) {
+                requestLayout();
+            }
+
+            if (getPanelState() == PanelState.COLLAPSED) {
+                smoothToBottom();
+                invalidate();
+            }
+        } else {
+            if (mHeaderViewResId == -1 || mHeaderView == null)
+                throw new IllegalStateException("PANEL_HEIGHT_AUTO can't be set without defining a headerView");
+            mPanelAutoHeightEnabled = true;
             requestLayout();
         }
+    }
 
-        if (getPanelState() == PanelState.COLLAPSED) {
-            smoothToBottom();
-            invalidate();
-            return;
-        }
+    /**
+     * @return The current collapsed panel height
+     */
+    public int getPanelHeight() {
+        return mPanelHeight;
+    }
+
+    /**
+     * @return True, if the panel automatically adjust its height to the header view.
+     */
+    public boolean getPanelAutoHeightEnabled() {
+        return mPanelAutoHeightEnabled;
     }
 
     protected void smoothToBottom() {
@@ -478,13 +531,6 @@ public class SlidingUpPanelLayout extends ViewGroup {
         if (!mFirstLayout) {
             invalidate();
         }
-    }
-
-    /**
-     * @return The current collapsed panel height
-     */
-    public int getPanelHeight() {
-        return mPanelHeight;
     }
 
     /**
@@ -814,7 +860,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         mSlideableView.measure(widthMeasureSpec, heightMeasureSpec);
 
         // we expect the header view to be within the slideable View, so it already got measured
-        if (mHeaderView != null) {
+        if (mPanelAutoHeightEnabled && mHeaderView != null) {
             mPanelHeight = mHeaderView.getMeasuredHeight();
         }
         mSlideRange = mSlideableView.getMeasuredHeight() - mPanelHeight;
