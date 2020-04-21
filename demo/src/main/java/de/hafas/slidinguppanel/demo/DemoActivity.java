@@ -1,13 +1,6 @@
 package de.hafas.slidinguppanel.demo;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -22,12 +15,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import de.hafas.slidinguppanel.SlidingUpPanelLayout;
-import de.hafas.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
-import de.hafas.slidinguppanel.SlidingUpPanelLayout.PanelState;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.Arrays;
 import java.util.List;
+
+import de.hafas.slidinguppanel.SlidingUpPanelLayout;
+import de.hafas.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
+import de.hafas.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
 public class DemoActivity extends AppCompatActivity {
     private static final String TAG = "DemoActivity";
@@ -113,17 +110,23 @@ public class DemoActivity extends AppCompatActivity {
             }
         });
 
-        TextView t = (TextView) findViewById(R.id.name);
+        TextView t = findViewById(R.id.name);
         t.setText(Html.fromHtml(getString(R.string.hello)));
-        Button f = (Button) findViewById(R.id.follow);
-        f.setText(Html.fromHtml(getString(R.string.follow)));
+        Button f = findViewById(R.id.follow);
+        f.setText(getString(R.string.button));
         f.setMovementMethod(LinkMovementMethod.getInstance());
         f.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse("http://www.twitter.com/umanoapp"));
-                startActivity(i);
+                View header = findViewById(R.id.header_view);
+                final int oldHeight = header.getLayoutParams().height;
+                final int initialHeight = v.getResources().getDimensionPixelSize(R.dimen.header_initial_height);
+                final int expandedHeight = v.getResources().getDimensionPixelSize(R.dimen.header_expanded_height);
+                if (oldHeight == initialHeight)
+                    header.getLayoutParams().height = expandedHeight;
+                else
+                    header.getLayoutParams().height = initialHeight;
+                header.requestLayout();
             }
         });
     }
@@ -173,6 +176,18 @@ public class DemoActivity extends AppCompatActivity {
                         mLayout.setAnchorPoint(1.0f);
                         mLayout.setPanelState(PanelState.COLLAPSED);
                         item.setTitle(R.string.action_anchor_enable);
+                    }
+                }
+                return true;
+            }
+            case R.id.action_auto_height: {
+                if (mLayout != null) {
+                    if (mLayout.getPanelAutoHeightEnabled()) {
+                        mLayout.setPanelHeight(getResources().getDimensionPixelSize(R.dimen.header_initial_height));
+                        item.setTitle(R.string.action_auto_height_enable);
+                    } else {
+                        mLayout.setPanelHeight(SlidingUpPanelLayout.PANEL_HEIGHT_AUTO);
+                        item.setTitle(R.string.action_auto_height_disable);
                     }
                 }
                 return true;

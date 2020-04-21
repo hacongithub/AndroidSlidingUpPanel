@@ -10,6 +10,7 @@
     sothree:hafasShadowHeight="4dp"
     sothree:hafasParallaxOffset="100dp"
     sothree:hafasDragView="@+id/dragView"
+    sothree:hafasHeaderView="@+id/header_view"
     sothree:hafasOverlay="true"
     sothree:hafasScrollableView="@+id/list">
 
@@ -50,8 +51,9 @@
         android:id="@+id/dragView">
 
         <LinearLayout
+            android:id="@+id/header_view"
             android:layout_width="match_parent"
-            android:layout_height="68dp"
+            android:layout_height="@dimen/header_initial_height"
             android:orientation="horizontal">
 
             <TextView
