@@ -809,8 +809,8 @@ public class SlidingUpPanelLayout extends ViewGroup {
         // See https://github.com/umano/AndroidSlidingUpPanel/issues/412.
         int height = layoutHeight - (lp.topMargin + getFooterHeight());
 
-        final int widthMeasureSpec = getChildWidthMeasureSpec((LayoutParams) mSlideableView.getLayoutParams(), layoutWidth);
-        final int heightMeasureSpec = getChildHeightMeasureSpec((LayoutParams) mSlideableView.getLayoutParams(), height);
+        final int widthMeasureSpec = getChildWidthMeasureSpec(lp, layoutWidth);
+        final int heightMeasureSpec = getChildHeightMeasureSpec(lp, height);
         mSlideableView.measure(widthMeasureSpec, heightMeasureSpec);
 
         // we expect the header view to be within the slideable View, so it already got measured
@@ -827,8 +827,8 @@ public class SlidingUpPanelLayout extends ViewGroup {
             height -= (mPanelHeight + getFooterHeight());
         }
         int width = layoutWidth - (lp.leftMargin + lp.rightMargin);
-        final int widthMeasureSpec = getChildWidthMeasureSpec((LayoutParams) mMainView.getLayoutParams(), width);
-        final int heightMeasureSpec = getChildHeightMeasureSpec((LayoutParams) mMainView.getLayoutParams(), height);
+        final int widthMeasureSpec = getChildWidthMeasureSpec(lp, width);
+        final int heightMeasureSpec = getChildHeightMeasureSpec(lp, height);
         mMainView.measure(widthMeasureSpec, heightMeasureSpec);
     }
 
