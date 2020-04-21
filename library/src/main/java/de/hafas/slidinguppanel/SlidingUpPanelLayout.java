@@ -10,11 +10,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
-
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.core.view.MotionEventCompat;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,10 +20,17 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
-import de.hafas.slidinguppanel.library.R;
+import androidx.annotation.IdRes;
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.MotionEventCompat;
+import androidx.core.view.ViewCompat;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import de.hafas.slidinguppanel.library.R;
 
 public class SlidingUpPanelLayout extends ViewGroup {
 
@@ -147,12 +149,14 @@ public class SlidingUpPanelLayout extends ViewGroup {
      * If provided, the panel can be dragged by only this view. Otherwise, the entire panel can be
      * used for dragging.
      */
+    @IdRes
     private int mDragViewResId = -1;
 
     /**
      * If provided, the panel will transfer the scroll from this view to itself when needed.
      */
     private View mScrollableView;
+    @IdRes
     private int mScrollableViewResId;
     private ScrollableViewHelper mScrollableViewHelper = new ScrollableViewHelper();
 
@@ -170,6 +174,14 @@ public class SlidingUpPanelLayout extends ViewGroup {
      * The footer view
      */
     private View mStickyFooter;
+
+    /**
+     * The header view. (View which decides how height the panelHeight is)
+     */
+    @IdRes
+    private int mHeaderViewResId = -1;
+    @Nullable
+    private View mHeaderView;
 
     /**
      * Current state of the slideable view.
@@ -327,6 +339,8 @@ public class SlidingUpPanelLayout extends ViewGroup {
                 if (interpolatorResId != -1) {
                     scrollerInterpolator = AnimationUtils.loadInterpolator(context, interpolatorResId);
                 }
+
+                mHeaderViewResId = ta.getResourceId(R.styleable.SlidingUpPanelLayout_hafasHeaderView, -1);
                 ta.recycle();
             }
         }
@@ -364,7 +378,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
     }
 
     /**
-     * Set the Drag View after the view is inflated
+     * Set the View references after the view is inflated
      */
     @Override
     protected void onFinishInflate() {
@@ -374,6 +388,9 @@ public class SlidingUpPanelLayout extends ViewGroup {
         }
         if (mScrollableViewResId != -1) {
             setScrollableView(findViewById(mScrollableViewResId));
+        }
+        if (mHeaderViewResId != -1) {
+            mHeaderView = findViewById(mHeaderViewResId);
         }
     }
 
@@ -771,62 +788,76 @@ public class SlidingUpPanelLayout extends ViewGroup {
         int layoutHeight = heightSize - getPaddingTop() - getPaddingBottom();
         int layoutWidth = widthSize - getPaddingLeft() - getPaddingRight();
 
-        // First pass. Measure based on child LayoutParams width/height.
-        if (mStickyFooter != null)
+        // footer
+        if (mStickyFooter != null && mStickyFooter.getVisibility() != GONE)
             measureChild(mStickyFooter, widthMeasureSpec, heightMeasureSpec);
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
-            // We always measure the sliding panel in order to know it's height (needed for show panel)
-            if (child.getVisibility() == GONE && i == 0) {
-                continue;
-            }
+        // slideable View
+        if (mSlideableView.getVisibility() != GONE)
+            measureSlideableView(layoutHeight, layoutWidth);
 
-            int height = layoutHeight;
-            int width = layoutWidth;
-            if (child == mMainView) {
-                if (!mOverlayContent && mSlideState != PanelState.HIDDEN) {
-                    height -= (mPanelHeight + getFooterHeight());
-                }
-
-                width -= lp.leftMargin + lp.rightMargin;
-            } else if (child == mSlideableView) {
-                // The slideable view should be aware of its top margin.
-                // See https://github.com/umano/AndroidSlidingUpPanel/issues/412.
-                height -= (lp.topMargin + getFooterHeight());
-            }
-
-            int childWidthSpec;
-            if (lp.width == LayoutParams.WRAP_CONTENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST);
-            } else if (lp.width == LayoutParams.MATCH_PARENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
-            } else {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
-            }
-
-            int childHeightSpec;
-            if (lp.height == LayoutParams.WRAP_CONTENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST);
-            } else {
-                // Modify the height based on the weight.
-                if (lp.weight > 0 && lp.weight < 1) {
-                    height = (int) (height * lp.weight);
-                } else if (lp.height != LayoutParams.MATCH_PARENT) {
-                    height = lp.height;
-                }
-                childHeightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-            }
-
-            child.measure(childWidthSpec, childHeightSpec);
-
-            if (child == mSlideableView) {
-                mSlideRange = mSlideableView.getMeasuredHeight() - mPanelHeight;
-            }
-        }
+        // main View
+        // We always measure the sliding panel in order to know it's height (needed for show panel)
+        measureMainView(layoutHeight, layoutWidth);
 
         setMeasuredDimension(widthSize, heightSize);
+    }
+
+    private void measureSlideableView(int layoutHeight, int layoutWidth) {
+        final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
+        // The slideable view should be aware of its top margin.
+        // See https://github.com/umano/AndroidSlidingUpPanel/issues/412.
+        int height = layoutHeight - (lp.topMargin + getFooterHeight());
+
+        final int widthMeasureSpec = getChildWidthMeasureSpec((LayoutParams) mSlideableView.getLayoutParams(), layoutWidth);
+        final int heightMeasureSpec = getChildHeightMeasureSpec((LayoutParams) mSlideableView.getLayoutParams(), height);
+        mSlideableView.measure(widthMeasureSpec, heightMeasureSpec);
+
+        // we expect the header view to be within the slideable View, so it already got measured
+        if (mHeaderView != null) {
+            mPanelHeight = mHeaderView.getMeasuredHeight();
+        }
+        mSlideRange = mSlideableView.getMeasuredHeight() - mPanelHeight;
+    }
+
+    private void measureMainView(int layoutHeight, int layoutWidth) {
+        final LayoutParams lp = (LayoutParams) mMainView.getLayoutParams();
+        int height = layoutHeight;
+        if (!mOverlayContent && mSlideState != PanelState.HIDDEN) {
+            height -= (mPanelHeight + getFooterHeight());
+        }
+        int width = layoutWidth - (lp.leftMargin + lp.rightMargin);
+        final int widthMeasureSpec = getChildWidthMeasureSpec((LayoutParams) mMainView.getLayoutParams(), width);
+        final int heightMeasureSpec = getChildHeightMeasureSpec((LayoutParams) mMainView.getLayoutParams(), height);
+        mMainView.measure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    private int getChildWidthMeasureSpec(LayoutParams childLayoutParams, int layoutWidth) {
+        int childWidthSpec;
+        if (childLayoutParams.width == LayoutParams.WRAP_CONTENT) {
+            childWidthSpec = MeasureSpec.makeMeasureSpec(layoutWidth, MeasureSpec.AT_MOST);
+        } else if (childLayoutParams.width == LayoutParams.MATCH_PARENT) {
+            childWidthSpec = MeasureSpec.makeMeasureSpec(layoutWidth, MeasureSpec.EXACTLY);
+        } else {
+            childWidthSpec = MeasureSpec.makeMeasureSpec(childLayoutParams.width, MeasureSpec.EXACTLY);
+        }
+        return childWidthSpec;
+    }
+
+    private int getChildHeightMeasureSpec(LayoutParams childLayoutParams, int layoutHeight) {
+        int childHeightSpec;
+        if (childLayoutParams.height == LayoutParams.WRAP_CONTENT) {
+            childHeightSpec = MeasureSpec.makeMeasureSpec(layoutHeight, MeasureSpec.AT_MOST);
+        } else {
+            // Modify the height based on the weight.
+            if (childLayoutParams.weight > 0 && childLayoutParams.weight < 1) {
+                layoutHeight = (int) (layoutHeight * childLayoutParams.weight);
+            } else if (childLayoutParams.height != LayoutParams.MATCH_PARENT) {
+                layoutHeight = childLayoutParams.height;
+            }
+            childHeightSpec = MeasureSpec.makeMeasureSpec(layoutHeight, MeasureSpec.EXACTLY);
+        }
+        return childHeightSpec;
     }
 
     private int getFooterHeight()

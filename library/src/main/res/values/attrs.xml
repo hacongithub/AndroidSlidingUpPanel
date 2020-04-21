@@ -19,6 +19,7 @@
             <enum name="hidden" value="3" />
         </attr>
         <attr name="hafasScrollInterpolator" format="reference" />
+        <attr name="hafasHeaderView" format="reference" />
     </declare-styleable>
 
 </resources>
