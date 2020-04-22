@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -330,11 +331,12 @@ public class SlidingUpPanelLayout extends ViewGroup {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlidingUpPanelLayout);
 
             if (ta != null) {
-                // try obtaining the value as an integer first. Since -2 is not a valid dimension
-                // an exception is thrown when we try that first
-                mPanelHeight = ta.getInt(R.styleable.SlidingUpPanelLayout_hafasPanelHeight, -1);
-                if (mPanelHeight != PANEL_HEIGHT_AUTO)
+                TypedValue value = new TypedValue();
+                ta.getValue(R.styleable.SlidingUpPanelLayout_hafasPanelHeight, value);
+                if (TypedValue.TYPE_DIMENSION == value.type)
                     mPanelHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasPanelHeight, -1);
+                else if (TypedValue.TYPE_INT_DEC == value.type)
+                    mPanelHeight = ta.getInt(R.styleable.SlidingUpPanelLayout_hafasPanelHeight, -1);
                 mShadowHeight = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasShadowHeight, -1);
                 mParallaxOffset = ta.getDimensionPixelSize(R.styleable.SlidingUpPanelLayout_hafasParallaxOffset, -1);
 
