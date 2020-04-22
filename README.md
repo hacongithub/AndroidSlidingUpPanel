@@ -151,12 +151,14 @@ Tested on Android 2.2+
 If you have an awesome pull request, send it over!
 
 ### Changelog
+* SNAPSHOT
+  * Added support for auto panel height.
 * 4.0.0
-  * Migrated the project to AndroidX
+  * Migrated the project to AndroidX.
   * Changed the packagename to `de.hafas.` prefix to prevent collisions
  with the existing library.
-  * Renamed attribute prefix to `hafas`
-  * Added Support for a sticky footer view.
+  * Renamed attribute prefix to `hafas`.
+  * Added support for a sticky footer view.
 * 3.4.0
   * Use the latest support library 26 and update the min version to 14.
   * Bug fixes
