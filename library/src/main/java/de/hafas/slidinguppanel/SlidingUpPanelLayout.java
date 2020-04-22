@@ -984,6 +984,10 @@ public class SlidingUpPanelLayout extends ViewGroup {
         // Recalculate sliding panes and their details
         if (h != oldh) {
             mFirstLayout = true;
+            // when the size of our view changes and we don't stop ongoing scrolls,
+            // the views may be stopped 'mid air'.
+            mDragHelper.abort();
+            mFooterDragHelper.abort();
         }
     }
 
