@@ -215,7 +215,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
     /**
      * How far the panel is offset from its expanded position.
-     * range [0, 1] where 0 = collapsed, 1 = expanded.
+     * range [-1, 0, 1] where -1 = hidden, 0 = collapsed, 1 = expanded.
      */
     private float mSlideOffset;
 
@@ -269,7 +269,8 @@ public class SlidingUpPanelLayout extends ViewGroup {
          * Called when a sliding pane's position changes.
          *
          * @param panel       The child view that was moved
-         * @param slideOffset The new offset of this sliding pane within its range, from 0-1
+         * @param slideOffset The new offset of this sliding pane within its range, from -1 to 1
+         *                    where -1 equals to HIDDEN, 0 equals to COLLAPSED and 1 equals to EXPANDED.
          */
         @MainThread
         void onPanelSlide(@NonNull View panel, float slideOffset);
@@ -926,11 +927,10 @@ public class SlidingUpPanelLayout extends ViewGroup {
                     mSlideOffset = 1.0f;
                     break;
                 case ANCHORED:
-                    mSlideOffset = mAnchorPoint;
+                    mSlideOffset = mSlideRange > 0.f ? mAnchorPoint : 0.f;
                     break;
                 case HIDDEN:
-                    int newTop = computePanelTopPosition(0.0f) + (mIsSlidingUp ? +mPanelHeight : -mPanelHeight);
-                    mSlideOffset = computeSlideOffset(newTop);
+                    mSlideOffset = -1.0f;
                     break;
                 default:
                     mSlideOffset = 0.f;
@@ -1169,7 +1169,12 @@ public class SlidingUpPanelLayout extends ViewGroup {
      */
     private int computePanelTopPosition(float slideOffset) {
         int slidingViewHeight = mSlideableView != null ? mSlideableView.getMeasuredHeight() : 0;
-        int slidePixelOffset = (int) (slideOffset * mSlideRange);
+        int slidePixelOffset;
+        if (slideOffset >= 0) {
+            slidePixelOffset = (int) (slideOffset * mSlideRange);
+        } else {
+            slidePixelOffset = (int) (slideOffset * mPanelHeight);
+        }
         int footerHeight = getFooterHeight();
         // Compute the top of the panel if its collapsed
         int panelTop = (mIsSlidingUp
@@ -1177,7 +1182,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
                         : getPaddingTop() - slidingViewHeight + mPanelHeight + slidePixelOffset); // TODO: adjust the panelTopPosition when a footer is configured and mIsSlidingUp = false
         // Don't return values higher than our height, otherwise there is a bug when adjusting
         // the height of mMainView in onPanelDragged()
-        return Math.min(panelTop, getHeight());
+        return Math.min(panelTop, getMeasuredHeight());
     }
 
     /*
@@ -1197,12 +1202,18 @@ public class SlidingUpPanelLayout extends ViewGroup {
     private float computeSlideOffset(int topPosition) {
         // Compute the panel top position if the panel is collapsed (offset 0)
         final int topBoundCollapsed = computePanelTopPosition(0);
+        final int topBoundHidden = computePanelTopPosition(-1f);
 
         // Determine the new slide offset based on the collapsed top position and the new required
         // top position
-        return (mIsSlidingUp
-                ? (float) (topBoundCollapsed - topPosition) / mSlideRange
-                : (float) (topPosition - topBoundCollapsed) / mSlideRange);
+        if (mIsSlidingUp) {
+            if (topPosition < topBoundCollapsed)
+                return (float) (topBoundCollapsed - topPosition) / mSlideRange;
+        } else {
+            if (topPosition > topBoundCollapsed)
+                return (float) (topPosition - topBoundCollapsed) / mSlideRange;
+        }
+        return -1 * (float) (topPosition - topBoundCollapsed) / (float) (topBoundHidden - topBoundCollapsed);
     }
 
     /**
@@ -1255,8 +1266,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
                     smoothSlideTo(1.0f, 0);
                     break;
                 case HIDDEN:
-                    int newTop = computePanelTopPosition(0.0f) + (mIsSlidingUp ? +mPanelHeight : -mPanelHeight);
-                    smoothSlideTo(computeSlideOffset(newTop), 0);
+                    smoothSlideTo(-1.0f, 0);
                     break;
             }
         }
@@ -1508,7 +1518,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
                     setPanelStateInternal(PanelState.EXPANDED);
                 } else if (mSlideOffset == 0) {
                     setPanelStateInternal(PanelState.COLLAPSED);
-                } else if (mSlideOffset < 0) {
+                } else if (mSlideOffset == -1) {
                     setPanelStateInternal(PanelState.HIDDEN);
                     mSlideableView.setVisibility(View.INVISIBLE);
                 } else {

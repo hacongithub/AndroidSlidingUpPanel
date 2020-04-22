@@ -153,6 +153,7 @@ If you have an awesome pull request, send it over!
 ### Changelog
 * SNAPSHOT
   * Added support for auto panel height.
+  * Changed the value range of `slideOffset` to properly reflect the slideable range and the hidden state.
 * 4.0.0
   * Migrated the project to AndroidX.
   * Changed the packagename to `de.hafas.` prefix to prevent collisions
