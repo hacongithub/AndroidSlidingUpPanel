@@ -29,7 +29,7 @@ dependencies {
     repositories {
         mavenCentral()
     }
-    implementation 'de.hafas.slidinguppanel:library:4.0.0'
+    implementation 'de.hafas.slidinguppanel:library:4.1.0'
 }
 ```
 
@@ -151,7 +151,7 @@ Tested on Android 2.2+
 If you have an awesome pull request, send it over!
 
 ### Changelog
-* SNAPSHOT
+* 4.1.0
   * Added support for auto panel height.
   * Changed the value range of `slideOffset` to properly reflect the slideable range and the hidden state.
 * 4.0.0
