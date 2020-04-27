@@ -618,6 +618,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
     public void setDragView(View dragView) {
         if (mDragView != null) {
             mDragView.setOnClickListener(null);
+            mDragView.setClickable(false);
         }
         mDragView = dragView;
         if (mDragView != null) {
