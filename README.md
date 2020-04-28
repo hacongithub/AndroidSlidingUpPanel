@@ -29,7 +29,7 @@ dependencies {
     repositories {
         mavenCentral()
     }
-    implementation 'de.hafas.slidinguppanel:library:4.1.2'
+    implementation 'de.hafas.slidinguppanel:library:4.1.3'
 }
 ```
 
