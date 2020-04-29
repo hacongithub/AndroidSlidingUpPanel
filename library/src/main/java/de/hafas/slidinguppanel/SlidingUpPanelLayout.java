@@ -865,6 +865,12 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
         final int widthMeasureSpec = getChildWidthMeasureSpec(lp, layoutWidth);
         final int heightMeasureSpec = getChildHeightMeasureSpec(lp, height);
+
+        // We need to force the measure-pass, since we rely upon the measurement of teh slideable view
+        // AND on the header view within the slideable view. When the measure cache gets hit,
+        // we get an old measure value from the header view since it did not get measured.
+        mSlideableView.forceLayout();
+
         mSlideableView.measure(widthMeasureSpec, heightMeasureSpec);
 
         // we expect the header view to be within the slideable View, so it already got measured
