@@ -1264,10 +1264,6 @@ public class SlidingUpPanelLayout extends ViewGroup {
         if (mFirstLayout) {
             setPanelStateInternal(state);
         } else {
-            if (mSlideState == PanelState.HIDDEN) {
-                mSlideableView.setVisibility(View.VISIBLE);
-                requestLayout();
-            }
             switch (state) {
                 case ANCHORED:
                     smoothSlideTo(mAnchorPoint, 0);
@@ -1533,7 +1529,6 @@ public class SlidingUpPanelLayout extends ViewGroup {
                     setPanelStateInternal(PanelState.COLLAPSED);
                 } else if (mSlideOffset == -1) {
                     setPanelStateInternal(PanelState.HIDDEN);
-                    mSlideableView.setVisibility(View.INVISIBLE);
                 } else {
                     updateObscuredViewVisibility();
                     setPanelStateInternal(PanelState.ANCHORED);
