@@ -252,8 +252,10 @@ class ViewSlideHelper {
 
         float snapPoint = callback.calculateSnapPoint(mSlideOffset, flingUp, flingDown);
 
-        if (snapPoint == mSlideOffset)
+        if (snapPoint == mSlideOffset) {
+            callback.onViewSettled(mSlideOffset);
             return null;
+        }
 
         return createAnimator(snapPoint);
     }
