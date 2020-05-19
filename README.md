@@ -106,27 +106,9 @@ or `?attr/actionBarSize` to support older API versions.
 
 ### Scrollable Sliding Views
 
-If you have a scrollable view inside of the sliding panel, make sure to set `hafasScrollableView` attribute on the panel to supported nested scrolling. The panel supports `ListView`, `ScrollView` and `RecyclerView` out of the box, but you can add support for any type of a scrollable view by setting a custom `ScrollableViewHelper`. Here is an example for `NestedScrollView`
-
-```
-public class NestedScrollableViewHelper extends ScrollableViewHelper {
-  public int getScrollableViewScrollPosition(View scrollableView, boolean isSlidingUp) {
-    if (mScrollableView instanceof NestedScrollView) {
-      if(isSlidingUp){
-        return mScrollableView.getScrollY();
-      } else {
-        NestedScrollView nsv = ((NestedScrollView) mScrollableView);
-        View child = nsv.getChildAt(0);
-        return (child.getBottom() - (nsv.getHeight() + nsv.getScrollY()));
-      }
-    } else {
-      return 0;
-    }
-  }
-}
-```
-
-Once you define your helper, you can set it using `setScrollableViewHelper` on the sliding panel.
+If you have a scrollable view inside of the sliding panel, make sure that it supports nested scrolling (i.e. use `NestedScrollView` instead of `ScrollView` and `RecyclerView` instead of `ListView`).
+The panel will then interact with the scrolling view, consuming scrolls to expand or collapse the panel first before allowing the user to scroll the content. You can disable this behaviour
+by setting `hafasNestedScrolling` to `false` (or use `setNestedScrollingEnabled(false)`).
 
 ### Implementation
 
@@ -151,6 +133,9 @@ Tested on Android 2.2+
 If you have an awesome pull request, send it over!
 
 ### Changelog
+* 5.0.0-SNAPSHOT
+  * Removed the ability to specify a scrollview in favor of the more generic nested scrolling concept of Android
+  * made the panel a little more resistant against race conditions due to size changes during animations
 * 4.1.0
   * Added support for auto panel height.
   * Changed the value range of `slideOffset` to properly reflect the slideable range and the hidden state.

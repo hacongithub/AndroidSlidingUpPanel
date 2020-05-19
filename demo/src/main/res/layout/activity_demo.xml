@@ -11,8 +11,7 @@
     sothree:hafasParallaxOffset="100dp"
     sothree:hafasDragView="@+id/dragView"
     sothree:hafasHeaderView="@+id/header_view"
-    sothree:hafasOverlay="true"
-    sothree:hafasScrollableView="@+id/list">
+    sothree:hafasOverlay="true">
 
     <!-- MAIN CONTENT -->
     <FrameLayout

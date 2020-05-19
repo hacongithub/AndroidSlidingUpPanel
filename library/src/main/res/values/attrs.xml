@@ -12,7 +12,7 @@
         <attr name="hafasFadeColor" format="color" />
         <attr name="hafasFlingVelocity" format="integer" />
         <attr name="hafasDragView" format="reference" />
-        <attr name="hafasScrollableView" format="reference" />
+        <attr name="hafasNestedScrolling" format="boolean" />
         <attr name="hafasOverlay" format="boolean"/>
         <attr name="hafasClipPanel" format="boolean"/>
         <attr name="hafasAnchorPoint" format="float" />
