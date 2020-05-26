@@ -1081,26 +1081,6 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
                 : 0); // TODO: return the right footerTopPosition when mIsSlidingUp = false
     }
 
-    /*
-     * Computes the slide offset based on the top position of the panel
-     */
-    private float computeSlideOffset(int topPosition) {
-        // Compute the panel top position if the panel is collapsed (offset 0)
-        final int topBoundCollapsed = computePanelTopPosition(0);
-        final int topBoundHidden = computePanelTopPosition(-1f);
-
-        // Determine the new slide offset based on the collapsed top position and the new required
-        // top position
-        if (mIsSlidingUp) {
-            if (topPosition < topBoundCollapsed)
-                return (float) (topBoundCollapsed - topPosition) / mSlideRange;
-        } else {
-            if (topPosition > topBoundCollapsed)
-                return (float) (topPosition - topBoundCollapsed) / mSlideRange;
-        }
-        return -1 * (float) (topPosition - topBoundCollapsed) / (float) (topBoundHidden - topBoundCollapsed);
-    }
-
     /**
      * Returns the current state of the panel as an enum.
      *
