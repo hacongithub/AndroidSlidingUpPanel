@@ -1073,12 +1073,12 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
      * Computes the top position of the footer based on the slide offset.
      */
     private int computeFooterTopPosition(float slideOffset) {
-        int footerViewHeight = getFooterHeight();
-        float footerVisibility = MathUtils.clamp(1.0f - (-slideOffset), 0.0f, 1.0f);
-        // slideOffset is negative, when mSlideableView is below its' collapsed state
-        return (mIsSlidingUp
-                ? getMeasuredHeight() - getPaddingBottom() - (int) (footerVisibility * footerViewHeight)
-                : 0); // TODO: return the right footerTopPosition when mIsSlidingUp = false
+        int footerHeight = getFooterHeight();
+        if (slideOffset >= 0) {
+            return getMeasuredHeight() - getPaddingBottom() - footerHeight;
+        } else {
+            return computePanelTopPosition(slideOffset) + mPanelHeight;
+        }
     }
 
     /**
