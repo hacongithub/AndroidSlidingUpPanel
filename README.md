@@ -29,7 +29,7 @@ dependencies {
     repositories {
         mavenCentral()
     }
-    implementation 'de.hafas.slidinguppanel:library:4.1.4'
+    implementation 'de.hafas.slidinguppanel:library:5.0.0'
 }
 ```
 
@@ -129,7 +129,7 @@ Tested on Android 2.2+
 If you have an awesome pull request, send it over!
 
 ### Changelog
-* 5.0.0-SNAPSHOT
+* 5.0.0
   * Removed the ability to specify a gravity, the panel will now always slide up
   * Removed the ability to specify a scrollview in favor of the more generic nested scrolling concept of Android
   * made the panel a little more resistant against race conditions due to size changes during animations
