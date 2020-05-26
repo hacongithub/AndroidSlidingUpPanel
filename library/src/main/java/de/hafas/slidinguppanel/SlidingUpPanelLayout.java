@@ -222,6 +222,10 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
      */
     private boolean mIsTouchEnabled;
 
+    /**
+     * Flag indicating that a touch gesture on the non-sliding part of the panel is in progress.
+     * This is used for detecting clicks on the faded part.
+     */
     private boolean mTouchingFade;
 
     private final List<PanelSlideListener> mPanelSlideListeners = new CopyOnWriteArrayList<>();
@@ -1310,7 +1314,7 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
         }
 
         @Override
-        public boolean isDragable(float screenX, float screenY) {
+        public boolean isDraggable(float screenX, float screenY) {
             int[] viewLocation = new int[2];
             mDragView.getLocationOnScreen(viewLocation);
             return screenX >= viewLocation[0] && screenX < viewLocation[0] + mDragView.getWidth() &&
@@ -1337,10 +1341,11 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
             setPanelStateInternal(PanelState.DRAGGING);
         }
 
+        @Override
         public float calculateSnapPoint(float slideOffset, boolean flingUp, boolean flingDown) {
             if (flingUp) {
                 return slideOffset > mAnchorPoint ? 1.0f : mAnchorPoint;
-            } else if(flingDown) {
+            } else if (flingDown) {
                 return slideOffset < mAnchorPoint ? 0.0f : mAnchorPoint;
             } else {
                 float anchorDistance = Math.abs(slideOffset - mAnchorPoint);

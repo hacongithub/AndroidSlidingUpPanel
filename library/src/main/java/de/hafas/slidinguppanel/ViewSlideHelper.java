@@ -103,13 +103,9 @@ class ViewSlideHelper {
             consumed[1] = dy;
         }
         if (type == ViewCompat.TYPE_TOUCH && dy > 0 && mSlideOffset < 1.0f) {
-            // a childs wants to scroll down but the panel is not fully expanded, we consume the
+            // a child wants to scroll down but the panel is not fully expanded, we consume the
             // scroll to open the panel first
-            int movedDistance = movePanelRelative(-dy);
-            // because the panel is moving up (towards smaller Y values), the moved distance will be
-            // negative and needs to be inverted
-            consumed[1] += -movedDistance;
-            consumedScrollDistance += -movedDistance;
+            movePanelByScroll(dy, consumed);
         }
     }
 
@@ -117,13 +113,16 @@ class ViewSlideHelper {
         if (dyUnconsumed < 0 && mSlideOffset > 0.0f && type == ViewCompat.TYPE_TOUCH) {
             // a child reported that it was scrolled up, but has reached the upper edge
             // of its content. The panel can use the remaining scroll motion to collapse.
-
-            int movedDistance = movePanelRelative(-dyUnconsumed);
-            // because the panel is moving down (towards bigger Y values), the moved distance will be
-            // positive and needs to be inverted
-            consumed[1] += -movedDistance;
-            consumedScrollDistance += -movedDistance;
+            movePanelByScroll(dyUnconsumed, consumed);
         }
+    }
+
+    private void movePanelByScroll(int dy, @NonNull int[] consumed) {
+        int movedDistance = movePanelRelative(-dy);
+        // because the panel is moving up (towards smaller Y values), the moved distance will be
+        // negative and needs to be inverted
+        consumed[1] += -movedDistance;
+        consumedScrollDistance += -movedDistance;
     }
 
     void onStopNestedScroll(@NonNull View target, int type) {
@@ -143,7 +142,7 @@ class ViewSlideHelper {
     private boolean processTouchEvent(MotionEvent event) {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                if (callback.isDragable(event.getRawX(), event.getRawY())) {
+                if (callback.isDraggable(event.getRawX(), event.getRawY())) {
                     trackedPointerId = event.getPointerId(0);
                     touchStart.set(event.getX(), event.getY());
                     velocityTracker = VelocityTracker.obtain();
@@ -285,7 +284,7 @@ class ViewSlideHelper {
 
         boolean isFling(float velocity);
 
-        boolean isDragable(float screenX, float screenY);
+        boolean isDraggable(float screenX, float screenY);
 
         /**
          * Called before the panel may start moving due to user interaction or a call to {@link #slideTo(float)}
