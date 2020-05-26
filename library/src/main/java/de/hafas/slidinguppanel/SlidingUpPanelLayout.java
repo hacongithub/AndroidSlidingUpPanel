@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,6 @@ import androidx.annotation.IdRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.math.MathUtils;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
@@ -76,12 +74,6 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
      */
     private static final boolean DEFAULT_CLIP_PANEL_FLAG = true;
     /**
-     * Default attributes for layout
-     */
-    private static final int[] DEFAULT_ATTRS = new int[]{
-            android.R.attr.gravity
-    };
-    /**
      * Tag for the sliding state stored inside the bundle
      */
     public static final String SLIDING_STATE = "sliding_state";
@@ -130,11 +122,6 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
      * Parallax offset
      */
     private int mParallaxOffset = -1;
-
-    /**
-     * True if the collapsed panel should be dragged up.
-     */
-    private boolean mIsSlidingUp;
 
     /**
      * Panel overlays the windows instead of putting it underneath it.
@@ -299,15 +286,6 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
         Interpolator scrollerInterpolator = null;
         boolean nestedScrollingEnabled = true;
         if (attrs != null) {
-            TypedArray defAttrs = context.obtainStyledAttributes(attrs, DEFAULT_ATTRS);
-
-            if (defAttrs != null) {
-                int gravity = defAttrs.getInt(0, Gravity.NO_GRAVITY);
-                setGravity(gravity);
-                defAttrs.recycle();
-            }
-
-
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlidingUpPanelLayout);
 
             if (ta != null) {
@@ -358,11 +336,7 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
         }
         // If the shadow height is zero, don't show the shadow
         if (mShadowHeight > 0) {
-            if (mIsSlidingUp) {
-                mShadowDrawable = getResources().getDrawable(R.drawable.above_shadow);
-            } else {
-                mShadowDrawable = getResources().getDrawable(R.drawable.below_shadow);
-            }
+            mShadowDrawable = getResources().getDrawable(R.drawable.above_shadow);
         } else {
             mShadowDrawable = null;
         }
@@ -386,16 +360,6 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
         }
         if (mHeaderViewResId != -1) {
             mHeaderView = findViewById(mHeaderViewResId);
-        }
-    }
-
-    public void setGravity(int gravity) {
-        if (gravity != Gravity.TOP && gravity != Gravity.BOTTOM) {
-            throw new IllegalArgumentException("gravity must be set to either top or bottom");
-        }
-        mIsSlidingUp = gravity == Gravity.BOTTOM;
-        if (!mFirstLayout) {
-            requestLayout();
         }
     }
 
@@ -519,8 +483,7 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
      */
     public int getCurrentParallaxOffset() {
         // Clamp slide offset at zero for parallax computation;
-        int offset = (int) (mParallaxOffset * Math.max(mViewSlideHelper.getSlideOffset(), 0));
-        return mIsSlidingUp ? -offset : offset;
+        return -(int) (mParallaxOffset * Math.max(mViewSlideHelper.getSlideOffset(), 0));
     }
 
     /**
@@ -939,11 +902,6 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
                 childTop = computeFooterTopPosition(mViewSlideHelper.getSlideOffset());
             }
 
-            if (!mIsSlidingUp) {
-                if (child == mMainView && !mOverlayContent) {
-                    childTop = computePanelTopPosition(mViewSlideHelper.getSlideOffset()) + mSlideableView.getMeasuredHeight();
-                }
-            }
             final int childBottom = childTop + childHeight;
             final int childLeft = paddingLeft + lp.leftMargin;
             final int childRight = childLeft + child.getMeasuredWidth();
@@ -1051,7 +1009,6 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
      * Computes the top position of the panel based on the slide offset.
      */
     int computePanelTopPosition(float slideOffset) {
-        int slidingViewHeight = mSlideableView != null ? mSlideableView.getMeasuredHeight() : 0;
         int slidePixelOffset;
         int footerHeight = getFooterHeight();
         if (slideOffset >= 0) {
@@ -1061,9 +1018,7 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
         }
 
         // Compute the top of the panel if its collapsed
-        int panelTop = (mIsSlidingUp
-                        ? getMeasuredHeight() - getPaddingBottom() - slidePixelOffset
-                        : getPaddingTop() - slidingViewHeight + slidePixelOffset); // TODO: adjust the panelTopPosition when a footer is configured and mIsSlidingUp = false
+        int panelTop = (getMeasuredHeight() - getPaddingBottom() - slidePixelOffset);
         // Don't return values higher than our height, otherwise there is a bug when adjusting
         // the height of mMainView in onPanelDragged()
         return Math.min(panelTop, getMeasuredHeight());
@@ -1155,7 +1110,7 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
 
         if (newSlideOffset <= 0 && !mOverlayContent) {
             // expand the main view
-            lp.height = mIsSlidingUp ? (newTop - getPaddingBottom()) : (getHeight() - getPaddingBottom() - mSlideableView.getMeasuredHeight() - newTop);
+            lp.height = newTop - getPaddingBottom();
             if (lp.height == defaultHeight) {
                 lp.height = LayoutParams.MATCH_PARENT;
             }
@@ -1181,11 +1136,7 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
             // Unless the panel is set to overlay content
             canvas.getClipBounds(mTmpRect);
             if (!mOverlayContent) {
-                if (mIsSlidingUp) {
-                    mTmpRect.bottom = Math.min(mTmpRect.bottom, mSlideableView.getTop());
-                } else {
-                    mTmpRect.top = Math.max(mTmpRect.top, mSlideableView.getBottom());
-                }
+                mTmpRect.bottom = Math.min(mTmpRect.bottom, mSlideableView.getTop());
             }
             if (mClipPanel) {
                 canvas.clipRect(mTmpRect);
@@ -1231,15 +1182,8 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
         // draw the shadow
         if (mShadowDrawable != null && mSlideableView != null) {
             final int right = mSlideableView.getRight();
-            final int top;
-            final int bottom;
-            if (mIsSlidingUp) {
-                top = mSlideableView.getTop() - mShadowHeight;
-                bottom = mSlideableView.getTop();
-            } else {
-                top = mSlideableView.getBottom();
-                bottom = mSlideableView.getBottom() + mShadowHeight;
-            }
+            final int top = mSlideableView.getTop() - mShadowHeight;
+            final int bottom = mSlideableView.getTop();
             final int left = mSlideableView.getLeft();
             mShadowDrawable.setBounds(left, top, right, bottom);
             mShadowDrawable.draw(c);

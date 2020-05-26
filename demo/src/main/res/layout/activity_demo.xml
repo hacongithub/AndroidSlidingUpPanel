@@ -5,7 +5,6 @@
     android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="bottom"
     sothree:hafasPanelHeight="auto"
     sothree:hafasShadowHeight="4dp"
     sothree:hafasDragView="@+id/dragView"
