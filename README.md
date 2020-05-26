@@ -36,10 +36,8 @@ dependencies {
 ### Usage
 
 * Include `de.hafas.slidinguppanel.SlidingUpPanelLayout` as the root element in your activity layout.
-* The layout must have `gravity` set to either `top` or `bottom`.
 * Make sure that it has at least two children. The first child is your main layout. The second child is your layout for the sliding up panel.
 * A sticky footer view can be added as 3rd child in the layout. **NOTE:**
- `gravity` set to top is currently not supported with a footer view.
 * The main layout should have the width and the height set to `match_parent`.
 * The sliding layout should have the width set to `match_parent` and the height set to either `match_parent`, `wrap_content` or the max desireable height. If you would like to define the height as the percetange of the screen, set it to `match_parent` and also define a `layout_weight` attribute for the sliding view.
 * By default, the whole panel will act as a drag region and will intercept clicks and drag events. You can restrict the drag area to a specific view by using the `setDragView` method or `hafasDragView` attribute.
@@ -52,7 +50,6 @@ For more information, please refer to the sample code.
     android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="bottom"
     app:hafasPanelHeight="68dp"
     app:hafasShadowHeight="4dp">
 
@@ -99,7 +96,6 @@ or `?attr/actionBarSize` to support older API versions.
 * You can add parallax to the main view by setting `hafasParallaxOffset` attribute (see demo for the example).
 * You can set a anchor point in the middle of the screen using `setAnchorPoint` to allow an intermediate expanded state for the panel (similar to Google Maps).
 * You can set a `PanelSlideListener` to monitor events about sliding panes.
-* You can also make the panel slide from the top by changing the `layout_gravity` attribute of the layout to `top`.
 * You can provide a scroll interpolator for the panel movement by setting `hafasScrollInterpolator` attribute. For instance, if you want a bounce or overshoot effect for the panel.
 * By default, the panel pushes up the main content. You can make it overlay the main content by using `setOverlayed` method or `hafasOverlay` attribute. This is useful if you would like to make the sliding layout semi-transparent. You can also set `hafasClipPanel` to false to make the panel transparent in non-overlay mode.
 * By default, the main content is dimmed as the panel slides up. You can change the dim color by changing `hafasFadeColor`. Set it to `"@android:color/transparent"` to remove dimming completely.
