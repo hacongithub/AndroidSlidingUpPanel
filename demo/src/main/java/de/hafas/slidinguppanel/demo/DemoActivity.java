@@ -102,6 +102,14 @@ public class DemoActivity extends AppCompatActivity {
             }
         });
 
+        View footer = findViewById(R.id.footer);
+        footer.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(DemoActivity.this, "onFooterClick", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         TextView t = findViewById(R.id.name);
         t.setText(Html.fromHtml(getString(R.string.hello)));
         Button f = findViewById(R.id.follow);
