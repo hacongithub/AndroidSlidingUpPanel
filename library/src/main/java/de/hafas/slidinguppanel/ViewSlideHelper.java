@@ -73,7 +73,11 @@ class ViewSlideHelper {
     }
 
     boolean onTouchEvent(MotionEvent event) {
-        return processTouchEvent(event);
+        return processTouchEvent(event)
+                // onTouch needs to return true to see the rest of the gesture if it may result in dragging
+                // this also ensures there will always be an UP or CANCEL event for every DOWN-Event we accept
+                || event.getAction() == MotionEvent.ACTION_DOWN
+                && trackedPointerId != MotionEvent.INVALID_POINTER_ID;
     }
 
     boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int axes, int type) {
