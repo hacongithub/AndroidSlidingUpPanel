@@ -950,10 +950,10 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
     public boolean onTouchEvent(MotionEvent event) {
         boolean fadeClicked = false;
         if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-            if (mTouchingFade && event.getY() < mSlideableView.getTop()
+            if (mTouchingFade && (event.getY() < mSlideableView.getTop()
                     || event.getY() > mSlideableView.getBottom()
                     || event.getX() < mSlideableView.getLeft()
-                    || event.getX() > mSlideableView.getRight()) {
+                    || event.getX() > mSlideableView.getRight())) {
                 playSoundEffect(android.view.SoundEffectConstants.CLICK);
                 mFadeOnClickListener.onClick(this);
                 fadeClicked = true;
