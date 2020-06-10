@@ -1239,9 +1239,16 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
         @Override
         public boolean isDraggable(float screenX, float screenY) {
             int[] viewLocation = new int[2];
-            mDragView.getLocationOnScreen(viewLocation);
-            return screenX >= viewLocation[0] && screenX < viewLocation[0] + mDragView.getWidth() &&
-                    screenY >= viewLocation[1] && screenY < viewLocation[1] + mDragView.getHeight();
+            if (mStickyFooter != null && isViewUnder(mStickyFooter, screenX, screenY, viewLocation)) {
+                return false;
+            }
+            return isViewUnder(mDragView, screenX, screenY, viewLocation);
+        }
+
+        private boolean isViewUnder(View view, float screenX, float screenY, int[] coordBuf) {
+            view.getLocationOnScreen(coordBuf);
+            return screenX >= coordBuf[0] && screenX < coordBuf[0] + view.getWidth() &&
+                    screenY >= coordBuf[1] && screenY < coordBuf[1] + view.getHeight();
         }
 
         @Override
