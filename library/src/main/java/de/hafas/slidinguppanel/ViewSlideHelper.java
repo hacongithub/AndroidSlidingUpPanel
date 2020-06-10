@@ -209,7 +209,8 @@ class ViewSlideHelper {
     }
 
     private int movePanelRelative(float deltaYPixels) {
-        float deltaOffset = -deltaYPixels / callback.getViewVerticalDragRange();
+        int dragRange = callback.getViewVerticalDragRange();
+        float deltaOffset = dragRange > 0 ? -deltaYPixels / dragRange : 0;
         float newSlideOffset = MathUtils.clamp(mSlideOffset + deltaOffset, 0f, 1f);
         int previousPosition = callback.getSlideableView().getTop();
         setSlideOffset(newSlideOffset);
