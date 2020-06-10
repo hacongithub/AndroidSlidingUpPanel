@@ -1057,8 +1057,7 @@ public class SlidingUpPanelLayout extends ViewGroup implements NestedScrollingPa
         }
         if (!isEnabled()
                 || (!mFirstLayout && mSlideableView == null)
-                || state == mSlideState
-                || mSlideState == PanelState.DRAGGING) return;
+                || state == mSlideState) return;
 
         if (mFirstLayout) {
             setPanelStateInternal(state);
