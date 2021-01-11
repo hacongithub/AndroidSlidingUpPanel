@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+apply plugin: 'net.linguica.maven-settings'
 
 repositories {
     jcenter()
@@ -21,6 +23,75 @@ android {
         minSdkVersion 14
         targetSdkVersion 29
     }
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 29
+        versionName POM_VERSION_NAME
+        versionCode 18
+    }
 }
 
-apply from: '../maven_push.gradle'
+def javadocTask = tasks.register("javadoc", Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    android.libraryVariants.all { variant ->
+        if (variant.name == 'release') {
+            owner.classpath += variant.javaCompileProvider.get().classpath
+        }
+    }
+    exclude '**/R.html', '**/R.*.html', '**/index.html'
+    failOnError false
+}
+def javadocJarTask = tasks.register("javadocJar", Jar) {
+    archiveClassifier.set('javadoc')
+    from javadocTask
+}
+
+def sourcesJarTask = tasks.register("sourcesJar", Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+def isReleaseBuild() {
+    return !project.android.defaultConfig.versionName.endsWith("-SNAPSHOT")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                artifact javadocJarTask.get()
+                artifact sourcesJarTask.get()
+
+                groupId = POM_GROUP
+                artifactId = POM_ARTIFACT_ID
+                version = android.defaultConfig.versionName
+
+                pom {
+                    name = POM_NAME
+                    description = POM_DESCRIPTION
+                    licenses {
+                        license {
+                            name = POM_LICENCE_NAME
+                            url = POM_LICENCE_URL
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name "release-repository"
+                url isReleaseBuild() ? RELEASE_REPOSITORY_URL : SNAPSHOT_REPOSITORY_URL
+            }
+        }
+    }
+}
+
+mavenSettings {
+    userSettingsFileName = "/home/android/.m2/settings.xml"
+}
