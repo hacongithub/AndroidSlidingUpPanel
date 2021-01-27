@@ -27,7 +27,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 29
-        versionName POM_VERSION_NAME
+        versionName project.getProperty('POM_VERSION_NAME')
         versionCode 18
     }
 }
