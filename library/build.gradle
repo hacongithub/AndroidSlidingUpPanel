@@ -91,7 +91,3 @@ afterEvaluate {
         }
     }
 }
-
-mavenSettings {
-    userSettingsFileName = "/home/android/.m2/settings.xml"
-}
