@@ -33,6 +33,8 @@ dependencies {
 }
 ```
 
+**Note:** Currently no builds of this library are published to any public repository. Please compile it yourself and use the .aar file, or publish it to your own repository by filling the variables `*_REPOSITORY_URL`  in `library/gradle.properties` and running `./gradlew :library:publish`.
+
 ### Usage
 
 * Include `de.hafas.slidinguppanel.SlidingUpPanelLayout` as the root element in your activity layout.
