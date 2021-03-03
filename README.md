@@ -1,39 +1,17 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.sothree.slidinguppanel/library/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.sothree.slidinguppanel/library)
-[![Badge](http://www.libtastic.com/static/osbadges/30.png)](http://www.libtastic.com/technology/30/)
-
-**Note:** we are **not** actively responding to issues right now. If you find a bug, please submit a PR. 
-
 Android Sliding Up Panel
 =========================
 
-This library provides a simple way to add a draggable sliding up panel (popularized by Google Music and Google Maps) to your Android application.
+This library provides a simple way to add a draggable sliding up panel to your Android application.
 
-As seen in Umano Android App (now acquired by Dropbox):
+As seen in many of our Trip Planner and Travel Companion apps.
 
-![SlidingUpPanelLayout](https://raw.github.com/umano/AndroidSlidingUpPanelDemo/master/slidinguppanel.png)
-
-### Known Uses in Popular Apps
-
-* [Soundcloud] (https://play.google.com/store/apps/details?id=com.soundcloud.android)
-* [Dropbox Paper] (https://play.google.com/store/apps/details?id=com.dropbox.paper)
-* [Snaptee] (https://play.google.com/store/apps/details?id=co.snaptee.android)
-
-If you are using the library and you would like to have your app listed, simply let us know.
+![SlidingUpPanelLayout](https://github.com/ims-hacon/AndroidSlidingUpPanel/raw/master/slidinguppanel.png)
 
 ### Importing the Library
 
-Simply add the following dependency to your `build.gradle` file to use the latest version:
+As the library is not published to any maven repository yet, you need to download the source code and include the library in your project as a module
 
-```groovy
-dependencies {
-    repositories {
-        mavenCentral()
-    }
-    implementation 'de.hafas.slidinguppanel:library:5.0.2'
-}
-```
-
-**Note:** Currently no builds of this library are published to any public repository. Please compile it yourself and use the .aar file, or publish it to your own repository by filling the variables `*_REPOSITORY_URL`  in `library/gradle.properties` and running `./gradlew :library:publish`.
+**Alternative:** You can also compile it yourself and use the .aar file.
 
 ### Usage
 
@@ -108,27 +86,13 @@ If you have a scrollable view inside of the sliding panel, make sure that it sup
 The panel will then interact with the scrolling view, consuming scrolls to expand or collapse the panel first before allowing the user to scroll the content. You can disable this behaviour
 by setting `hafasNestedScrolling` to `false` (or use `setNestedScrollingEnabled(false)`).
 
-### Implementation
+### Credit
 
-This library was initially based on the opened-sourced [SlidingPaneLayout](http://developer.android.com/reference/android/support/v4/widget/SlidingPaneLayout.html) component from the r13 of the Android Support Library. Thanks Android team!
+This library is forked from https://github.com/umano/AndroidSlidingUpPanel which was initially based on the opened-sourced [SlidingPaneLayout](http://developer.android.com/reference/android/support/v4/widget/SlidingPaneLayout.html) component from the r13 of the Android Support Library.
 
 ### Requirements
 
-Tested on Android 2.2+
-
-### Other Contributors
-
-* Apr 22, 20 - HaCon - Added support for auto panel height
-* Apr 9, 20 - HaCon - Added support for footer view
-* Nov 23, 15 - [@kiyeonk](https://github.com/kiyeonk) - umanoScrollInterpolator support
-* Jan 21, 14 - ChaYoung You ([@yous](https://github.com/yous)) - Slide from the top support
-* Aug 20, 13 - [@gipi](https://github.com/gipi) - Android Studio Support
-* Jul 24, 13 - Philip Schiffer ([@hameno](https://github.com/hameno)) - Maven Support
-* Oct 20, 13 - Irina Preșa ([@iriina](https://github.com/iriina)) - Anchor Support
-* Dec 1, 13 - ([@youchy](https://github.com/youchy)) - XML Attributes Support
-* Dec 22, 13 - Vladimir Mironov ([@MironovNsk](https://github.com/nsk-mironov)) - Custom Expanded Panel Height
-
-If you have an awesome pull request, send it over!
+Minimum api version 14 (4.0.1)
 
 ### Changelog
 * 5.0.0
@@ -188,3 +152,4 @@ If you have an awesome pull request, send it over!
 > WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 > See the License for the specific language governing permissions and
 > limitations under the License.
+
