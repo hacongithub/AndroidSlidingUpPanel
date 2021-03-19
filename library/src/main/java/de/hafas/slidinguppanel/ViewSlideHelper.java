@@ -274,9 +274,18 @@ class ViewSlideHelper {
             }
         });
         snapAnimator.addListener(new AnimatorListenerAdapter() {
+            private boolean cancelled = false;
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                cancelled = true;
+            }
+
             @Override
             public void onAnimationEnd(Animator animation) {
-                callback.onViewSettled(mSlideOffset);
+                if (!cancelled) {
+                    callback.onViewSettled(mSlideOffset);
+                }
             }
         });
         return snapAnimator;
